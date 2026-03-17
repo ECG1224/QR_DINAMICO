@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Cargando...</title>
+  <title>Información del producto</title>
   <style>
     body {
       background-color: lightblue;
@@ -12,20 +12,29 @@
       padding: 0;
     }
 
-    /* Contenedor centrado */
-    .contenedor {
-      margin-top: 120px;
+    /* TITULO */
+    .titulo {
+      width: 100%;
+      background-color: #0b3d91;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 15px 0;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    /* Logo */
+    .contenedor {
+      margin-top: 50px;
+    }
+
     .logo {
       width: 220px;
       max-width: 90%;
     }
 
-    /* Texto */
     .texto {
-      font-size: 22px;
+      font-size: 20px;
       margin-top: 20px;
       color: #333;
     }
@@ -36,7 +45,7 @@
       position: relative;
       width: 80px;
       height: 80px;
-      margin-top: 30px;
+      margin-top: 20px;
     }
 
     .lds-ring div {
@@ -48,52 +57,62 @@
       margin: 8px;
       border: 8px solid white;
       border-radius: 50%;
-      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      animation: lds-ring 1.2s infinite;
       border-color: white transparent transparent transparent;
     }
 
-    .lds-ring div:nth-child(1) {
-      animation-delay: -0.45s;
-    }
-
-    .lds-ring div:nth-child(2) {
-      animation-delay: -0.3s;
-    }
-
-    .lds-ring div:nth-child(3) {
-      animation-delay: -0.15s;
-    }
-
     @keyframes lds-ring {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* RESULTADO */
+    #resultado {
+      margin: 30px auto;
+      width: 80%;
+      max-width: 800px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: none;
+      text-align: left;
+    }
+
+    /* Fecha */
+    #fechaHora {
+      position: fixed;
+      bottom: 10px;
+      right: 15px;
+      font-size: 14px;
+      color: #333;
+      background: rgba(255,255,255,0.7);
+      padding: 6px 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
-  <div class="contenedor">
+  <div class="titulo">INFORMACIÓN DEL PRODUCTO</div>
+
+  <div class="contenedor" id="loader">
     <img 
       src="https://lh3.googleusercontent.com/d/1ElAomgIbpIA38uCARp4s1ujJNDL_8gtH=s220?authuser=0" 
-      class="logo" 
-      alt="Logo"
+      class="logo"
     >
-
-    <div class="texto">
-      Cargando información...
-    </div>
+    <div class="texto">Cargando información...</div>
 
     <div class="lds-ring">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
+      <div></div><div></div><div></div><div></div>
     </div>
   </div>
+
+  <!-- RESULTADO -->
+  <div id="resultado"></div>
+
+  <!-- FECHA -->
+  <div id="fechaHora"></div>
 
   <script>
     const AS_URL_BASE = "https://script.google.com/macros/s/AKfycbxrjeC1L-JEmL3Cx-QPSqmGjxMSiKb8PkbIHiyVNSXIHT1QLWQSNi9G2o6JtAwq0J98/exec";
@@ -106,12 +125,47 @@
         .then(r => r.text())
         .then((r) => {
           console.log(r);
+
           if (r) {
-            document.location.replace(r);
+            document.getElementById("loader").style.display = "none";
+
+            const resultado = document.getElementById("resultado");
+            resultado.style.display = "block";
+
+            // Si tu Apps Script regresa HTML → usa innerHTML
+            resultado.innerHTML = r;
+
+            // Si regresa texto plano usa:
+            // resultado.textContent = r;
           }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          document.getElementById("loader").innerHTML = "Error al cargar datos";
+          console.log(err);
+        });
     }
+
+    function actualizarFechaHora() {
+      const ahora = new Date();
+
+      const fecha = ahora.toLocaleDateString('es-MX', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const hora = ahora.toLocaleTimeString('es-MX', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+
+      document.getElementById("fechaHora").textContent = fecha + ", " + hora;
+    }
+
+    setInterval(actualizarFechaHora, 1000);
+    actualizarFechaHora();
   </script>
 
 </body>
